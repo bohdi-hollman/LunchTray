@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.example.lunchtray.model
 
 import androidx.lifecycle.LiveData
@@ -62,7 +77,7 @@ class OrderViewModel : ViewModel() {
         // TODO: if _subtotal.value is not null subtract the previous entree price from the current
         //  subtotal value. This ensures that we only charge for the currently selected entree.
         if (_subtotal.value != null){
-            _subtotal.value = _subtotal.value!!.minus(previousEntreePrice)
+           _subtotal.value = _subtotal.value!!.minus(previousEntreePrice)
         }
 
         // TODO: set the current entree value to the menu item corresponding to the passed in string
@@ -159,5 +174,5 @@ class OrderViewModel : ViewModel() {
         _total.value =0.0
         _tax.value = 0.0
 
-    }
+        }
 }

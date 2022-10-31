@@ -1,163 +1,94 @@
-package com.example.lunchtray.model
+/*
+ * Copyright (C) 2021 The Android Open Source Project.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.example.lunchtray.ui.order
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
-import com.example.lunchtray.data.DataSource
-import java.text.NumberFormat
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
+import com.example.lunchtray.R
+import com.example.lunchtray.databinding.FragmentAccompanimentMenuBinding
+import com.example.lunchtray.model.OrderViewModel
 
-class OrderViewModel : ViewModel() { //here
+/**
+ * [AccompanimentMenuFragment] allows people to add an accompaniment to their order or cancel the
+ * order.
+ */
+class AccompanimentMenuFragment : Fragment() {
 
-    // Map of menu items
-    val menuItems = DataSource.menuItems
+    // Binding object instance corresponding to the fragment_start_order.xml layout
+    // This property is non-null between the onCreateView() and onDestroyView() lifecycle callbacks,
+    // when the view hierarchy is attached to the fragment.
+    private var _binding: FragmentAccompanimentMenuBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding!!
+    // Use the 'by activityViewModels()' Kotlin property delegate from the fragment-ktx artifact
+    private val sharedViewModel: OrderViewModel by activityViewModels()
 
-    // Default values for item prices
-    private var previousEntreePrice = 0.0
-    private var previousSidePrice = 0.0
-    private var previousAccompanimentPrice = 0.0
-
-    // Default tax rate
-    private val taxRate = 0.08
-
-    // Entree for the order
-    private val _entree = MutableLiveData<MenuItem?>()
-    val entree: LiveData<MenuItem?> = _entree
-
-    // Side for the order
-    private val _side = MutableLiveData<MenuItem?>()
-    val side: LiveData<MenuItem?> = _side
-
-    // Accompaniment for the order.
-    private val _accompaniment = MutableLiveData<MenuItem?>()
-    val accompaniment: LiveData<MenuItem?> = _accompaniment
-
-    // Subtotal for the order
-    private val _subtotal = MutableLiveData(0.0)
-    val subtotal: LiveData<String> = Transformations.map(_subtotal) {
-        NumberFormat.getCurrencyInstance().format(it)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
     }
 
-    // Total cost of the order
-    private val _total = MutableLiveData(0.0)
-    val total: LiveData<String> = Transformations.map(_total) {
-        NumberFormat.getCurrencyInstance().format(it)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentAccompanimentMenuBinding.inflate(inflater, container, false)
+        val root = binding.root
+        return root
     }
 
-    // Tax for the order
-    private val _tax = MutableLiveData(0.0)
-    val tax: LiveData<String> = Transformations.map(_tax) {
-        NumberFormat.getCurrencyInstance().format(it)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            viewModel = sharedViewModel
+            // TODO: initialize the AccompanimentMenuFragment variables
+            accompanimentFragment = this@AccompanimentMenuFragment
+        }
     }
 
     /**
-     * Set the entree for the order.
+     * Navigate to the checkout fragment.
      */
-    fun setEntree(entree: String) {
-        // TODO: if _entree.value is not null, set the previous entree price to the current
-        //  entree price.
-        if (_entree.value != null){
-            previousEntreePrice = _entree.value!!.price
-        }
-        // TODO: if _subtotal.value is not null subtract the previous entree price from the current
-        //  subtotal value. This ensures that we only charge for the currently selected entree.
-        if (_subtotal.value != null){
-            _subtotal.value = _subtotal.value!!.minus(previousEntreePrice)
-        }
-
-        // TODO: set the current entree value to the menu item corresponding to the passed in string
-        // TODO: update the subtotal to reflect the price of the selected entree.
-        _entree.value = menuItems[entree]
-        updateSubtotal(_entree.value!!.price)
-
-
+    fun goToNextScreen() {
+        // TODO: Navigate to the CheckoutFragment
+        findNavController().navigate(R.id.action_accompanimentMenuFragment_to_checkoutFragment)
     }
 
     /**
-     * Set the side for the order.
+     * Cancel the order and start over.
      */
-    fun setSide(side: String) {
-        // TODO: if _side.value is not null, set the previous side price to the current side price.
-        if(_side.value != null) {
-            previousSidePrice = _side.value!!.price
-        }
-        // TODO: if _subtotal.value is not null subtract the previous side price from the current
-        //  subtotal value. This ensures that we only charge for the currently selected side.
-        if (_subtotal.value != null){
-            _subtotal.value = _subtotal.value!!.minus(previousSidePrice)
-        }
-
-        // TODO: set the current side value to the menu item corresponding to the passed in string
-        // TODO: update the subtotal to reflect the price of the selected side.
-        _side.value = menuItems[side]
-        updateSubtotal(_side.value!!.price)
+    fun cancelOrder() {
+        // TODO: Reset order in view model
+        sharedViewModel.resetOrder()
+        // TODO: Navigate back to the [StartFragment] to start over
+        findNavController().navigate(R.id.action_accompanimentMenuFragment_to_startOrderFragment)
     }
 
     /**
-     * Set the accompaniment for the order.
+     * This fragment lifecycle method is called when the view hierarchy associated with the fragment
+     * is being removed. As a result, clear out the binding object.
      */
-    fun setAccompaniment(accompaniment: String) {
-        // TODO: if _accompaniment.value is not null, set the previous accompaniment price to the
-        //  current accompaniment price.
-        if(_accompaniment.value !== null){
-            previousAccompanimentPrice = _accompaniment.value!!.price
-        }
-
-        // TODO: if _accompaniment.value is not null subtract the previous accompaniment price from
-        //  the current subtotal value. This ensures that we only charge for the currently selected
-        //  accompaniment.
-        if (_accompaniment.value != null){
-            _subtotal.value = _subtotal.value!!.minus(previousAccompanimentPrice)
-        }
-
-        // TODO: set the current accompaniment value to the menu item corresponding to the passed in
-        //  string
-        // TODO: update the subtotal to reflect the price of the selected accompaniment.
-        _accompaniment.value = menuItems[accompaniment]
-        updateSubtotal(_accompaniment.value!!.price)
-    }
-
-    /**
-     * Update subtotal value.
-     */
-    private fun updateSubtotal(itemPrice: Double) {
-        // TODO: if _subtotal.value is not null, update it to reflect the price of the recently
-        //  added item.
-        //  Otherwise, set _subtotal.value to equal the price of the item.
-        if (_subtotal.value != null){
-            _subtotal.value = _subtotal.value!!.plus(itemPrice)
-        } else {
-            _subtotal.value = itemPrice
-        }
-
-        // TODO: calculate the tax and resulting total
-        calculateTaxAndTotal()
-    }
-
-    /**
-     * Calculate tax and update total.
-     */
-    fun calculateTaxAndTotal() {
-        // TODO: set _tax.value based on the subtotal and the tax rate.
-        _tax.value =  _subtotal.value!!.times(taxRate)
-        // TODO: set the total based on the subtotal and _tax.value.
-        _total.value = _subtotal.value!!.plus(_tax.value!!)
-    }
-
-    /**
-     * Reset all values pertaining to the order.
-     */
-    fun resetOrder() {
-        // TODO: Reset all values associated with an order
-        previousEntreePrice = 0.0
-        previousSidePrice = 0.0
-        previousAccompanimentPrice = 0.0
-        _entree.value = null
-        _side.value = null
-        _accompaniment.value = null
-        _subtotal.value = 0.0
-        _total.value =0.0
-        _tax.value = 0.0
-
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
